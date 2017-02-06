@@ -47,6 +47,9 @@
  *
  * Implements version 1, 3, 4 and 5
  */
+
+namespace UUID;
+
 class UUID {
 	/* UUID versions */
 	const UUID_TIME	 = 1;	/* Time based UUID */
