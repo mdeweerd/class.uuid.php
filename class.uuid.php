@@ -39,6 +39,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
+ *  UUID Version 4 generation (random UUID) corrected by Mario DE WEERD (2021)
+ *
  */
 
 /*
