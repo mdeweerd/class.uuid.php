@@ -159,7 +159,7 @@ class UUID {
 		$uuid = self::$m_uuid_field;
 
 		$uuid['time_hi'] = (4 << 12) | (mt_rand(0, 0x1000));
-		$uuid['clock_seq_hi'] = (1 << 7) | mt_rand(0, 128);
+		$uuid['clock_seq_hi'] = (1 << 7) | mt_rand(0, 64);
 		$uuid['time_low'] = mt_rand(0, 0xffff) + (mt_rand(0, 0xffff) << 16);
 		$uuid['time_mid'] = mt_rand(0, 0xffff);
 		$uuid['clock_seq_low'] = mt_rand(0, 255);
