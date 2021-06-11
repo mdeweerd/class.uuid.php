@@ -177,15 +177,16 @@ class UUID {
     /**
      * Public API, convert a UUID from one format to another
      *
-     * @param $uuid string|int[]|array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
-     * @param $from int
-     * @param $to int
-     * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
+     * @param string|int[]|array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}} $uuid
+     * @param int $from
+     * @param int $to
+     * @return string|int[]|array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static public function convert($uuid, $from, $to) {
         $conv = self::$m_convert[$from][$to];
-        if (!isset($conv))
+        if (!isset($conv)) {
             return ($uuid);
+        }
 
         return (self::$conv($uuid)); // @phan-suppress-current-line PhanTypeMismatchArgument
     }
@@ -210,7 +211,7 @@ class UUID {
     /**
      * Generate UUID version 3 and 5 (name based)
      *
-     * @param int $ns
+     * @param string $ns
      * @param string $node
      * @param string $hash
      * @param int $version
@@ -254,7 +255,7 @@ class UUID {
 
     /**
      *
-     * @param int $ns
+     * @param string $ns
      * @param string $node
      * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
@@ -264,7 +265,7 @@ class UUID {
     }
     /**
      *
-     * @param int $ns
+     * @param string $ns
      * @param string $node
      * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
