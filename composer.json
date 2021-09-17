@@ -20,7 +20,7 @@
       "name": "Mario DE WEERD",
       "homepage": "https://github.com/mdeweerd",
       "role": "Developer"
-    },
+    }
   ],
   "require": {
     "php": ">=5.3.1"
