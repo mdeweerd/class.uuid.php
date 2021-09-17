@@ -51,46 +51,46 @@
  * Implements version 1, 3, 4 and 5
  */
 class UUID {
-    /* UUID versions */
-    const UUID_TIME	     = 1;	/* Time based UUID */
-    const UUID_NAME_MD5	 = 3;	/* Name based (MD5) UUID */
-    const UUID_RANDOM	 = 4;	/* Random UUID */
-    const UUID_NAME_SHA1 = 5;	/* Name based (SHA1) UUID */
+    /** UUID versions */
+    const UUID_TIME	     = 1;	/** Time based UUID */
+    const UUID_NAME_MD5	 = 3;	/** Name based (MD5) UUID */
+    const UUID_RANDOM	 = 4;	/** Random UUID */
+    const UUID_NAME_SHA1 = 5;	/** Name based (SHA1) UUID */
 
-    /* UUID formats */
+    /** UUID formats */
     const FMT_FIELD	    = 100;
     const FMT_STRING	= 101;
     const FMT_BINARY	= 102;
-    const FMT_QWORD	    = 1;	/* Quad-word, 128-bit (not impl.) */
-    const FMT_DWORD	    = 2;	/* Double-word, 64-bit (not impl.) */
-    const FMT_WORD		= 4;	/* Word, 32-bit (not impl.) */
-    const FMT_SHORT		= 8;	/* Short (not impl.) */
-    const FMT_BYTE		= 16;	/* Byte */
+    const FMT_QWORD	    = 1;	/** Quad-word, 128-bit (not impl.) */
+    const FMT_DWORD	    = 2;	/** Double-word, 64-bit (not impl.) */
+    const FMT_WORD		= 4;	/** Word, 32-bit (not impl.) */
+    const FMT_SHORT		= 8;	/** Short (not impl.) */
+    const FMT_BYTE		= 16;	/** Byte */
     const FMT_DEFAULT	= 16;
 
     /**
      * @var mixed[] Field UUID representation
      */
     static private $m_uuid_field = array(
-            'time_low' => 0,		/* 32-bit */
-            'time_mid' => 0,		/* 16-bit */
-            'time_hi' => 0,			/* 16-bit */
-            'clock_seq_hi' => 0,		/*  8-bit */
-            'clock_seq_low' => 0,		/*  8-bit */
-            'node' => array()		/* 48-bit */
+            'time_low' => 0,		/** 32-bit */
+            'time_mid' => 0,		/** 16-bit */
+            'time_hi' => 0,			/** 16-bit */
+            'clock_seq_hi' => 0,		/**  8-bit */
+            'clock_seq_low' => 0,		/**  8-bit */
+            'node' => array()		/** 48-bit */
     );
 
     /**
      * @var string[]
      */
-    static private $m_generate = array(
+    private const M_GENERATE = array(
             self::UUID_TIME => "generateTime",
             self::UUID_RANDOM => "generateRandom",
             self::UUID_NAME_MD5 => "generateNameMD5",
             self::UUID_NAME_SHA1 => "generateNameSHA1"
     );
 
-    static private $m_convert = array(
+    private const M_CONVERT = array(
             self::FMT_FIELD => array(
                     self::FMT_BYTE => "conv_field2byte",
                     self::FMT_STRING => "conv_field2string",
@@ -165,10 +165,10 @@ class UUID {
      * @param string $ns    Unique Id for the "user" for the node
      */
     static public function generate($type, $fmt = self::FMT_BYTE, $node = "", $ns = "") {
-        $func = self::$m_generate[$type];
+        $func = self::M_GENERATE[$type];
         if (!isset($func))
             return null;
-        $conv = self::$m_convert[self::FMT_FIELD][$fmt];
+        $conv = self::M_CONVERT[self::FMT_FIELD][$fmt];
 
         $uuid = self::$func($ns, $node);
         return self::$conv($uuid);
@@ -183,7 +183,7 @@ class UUID {
      * @return string|int[]|array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static public function convert($uuid, $from, $to) {
-        $conv = self::$m_convert[$from][$to];
+        $conv = self::M_CONVERT[$from][$to];
         if (!isset($conv)) {
             return ($uuid);
         }
@@ -198,14 +198,14 @@ class UUID {
     static private function generateRandom($ns, $node) {
         $uuid = self::$m_uuid_field;
 
-        $uuid['time_hi'] = (4 << 12) | (mt_rand(0, 0x1000)); // Version is 4
-        $uuid['clock_seq_hi'] = (1 << 7) | mt_rand(0, 64); // High bits 0b10
+        $uuid['time_hi'] = (4 << 12) | (mt_rand(0, 0x0fff)); // Version is 4
+        $uuid['clock_seq_hi'] = (1 << 7) | mt_rand(0, 0x3f); // High bits 0b10
         $uuid['time_low'] = mt_rand(0, 0xffff) + (mt_rand(0, 0xffff) << 16);
         $uuid['time_mid'] = mt_rand(0, 0xffff);
         $uuid['clock_seq_low'] = mt_rand(0, 255);
         for ($i = 0; $i < 6; $i++)
             $uuid['node'][$i] = mt_rand(0, 255);
-        return ($uuid);
+        return ($uuid); // @phan-suppress-current-line PhanTypeMismatchReturn
     }
 
     /**
@@ -220,31 +220,31 @@ class UUID {
     static private function generateName($ns, $node, $hash, $version) {
         $ns_fmt = self::detectFormat($ns);
         $field = self::convert($ns, $ns_fmt, self::FMT_FIELD);
-        /* @var $field array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}} */
-        /* Swap byte order to keep it in big endian on all platforms */
+        /** @var $field array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}} */
+        /** Swap byte order to keep it in big endian on all platforms */
         $field['time_low'] = self::swap32(intval($field['time_low'])); // @phan-suppress-current-line PhanTypeArraySuspicious
         $field['time_mid'] = self::swap16(intval($field['time_mid'])); // @phan-suppress-current-line PhanTypeInvalidDimOffset
         $field['time_hi'] = self::swap16(intval($field['time_hi']));   // @phan-suppress-current-line PhanTypeInvalidDimOffset
 
-        /* Convert the namespace to binary and concatenate node */
+        /** Convert the namespace to binary and concatenate node */
         $raw = self::convert($field, self::FMT_FIELD, self::FMT_BINARY);
         $raw .= $node;
 
-        /* Hash the namespace and node and convert to a byte array */
+        /** Hash the namespace and node and convert to a byte array */
         $val = $hash($raw, true);
         $tmp = unpack('C16', $val);
         $byte=array();
         foreach (array_keys($tmp) as $key)
             $byte[$key - 1] = $tmp[$key];
 
-        /* Convert byte array to a field array */
+        /** Convert byte array to a field array */
         $field = self::conv_byte2field($byte);
 
         $field['time_low'] = self::swap32($field['time_low']);
         $field['time_mid'] = self::swap16($field['time_mid']);
         $field['time_hi'] = self::swap16($field['time_hi']);
 
-        /* Apply version and constants */
+        /** Apply version and constants */
         $field['clock_seq_hi'] &= 0x3f;
         $field['clock_seq_hi'] |= (1 << 7);
         $field['time_hi'] &= 0x0fff;
@@ -274,12 +274,12 @@ class UUID {
                 self::UUID_NAME_SHA1);
     }
 
-    /*
+    /**
      * Generate UUID version 1 (time based)
      *
-     * @param int ns
+     * @param int $ns
      * @param string $node
-     * @resturn array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
+     * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static private function generateTime($ns, $node) {
         $uuid = self::$m_uuid_field;
@@ -294,7 +294,7 @@ class UUID {
         0x01B21DD213814000;
 
         $uuid['time_low'] = $time & 0xffffffff;
-        /* Work around PHP 32-bit bit-operation limits */
+        /** Work around PHP 32-bit bit-operation limits */
         $high = intval($time / 0xffffffff);
         $uuid['time_mid'] = $high & 0xffff;
         $uuid['time_hi'] = (($high >> 16) & 0xfff) | (self::UUID_TIME << 12);
@@ -303,7 +303,7 @@ class UUID {
          * We don't support saved state information and generate
         * a random clock sequence each time.
         */
-        $uuid['clock_seq_hi'] = 0x80 | mt_rand(0, 64);
+        $uuid['clock_seq_hi'] = 0x80 | mt_rand(0, 0x3f);
         $uuid['clock_seq_low'] = mt_rand(0, 255);
 
         /*
@@ -382,7 +382,7 @@ class UUID {
 
         for ($i = 0; $i < 6; $i++)
             $field['node'][$i] = $uuid[10+$i];
-        return ($field);
+        return ($field); // @phan-suppress-current-line PhanTypeMismatchReturn
     }
 
     static public function conv_byte2string($src) {
@@ -418,7 +418,7 @@ class UUID {
         for ($i = 0; $i < 6; $i++)
             $field['node'][$i] = $parts[4+$i];
 
-        return ($field);
+        return ($field); // @phan-suppress-current-line PhanTypeMismatchReturn
     }
 
     /**
