@@ -1,0 +1,24 @@
+{
+  "name": "krecu/class.uuid.php",
+  "description": "UUID generator base on implementation by Fredrik Lindberg",
+  "keywords": ["uuid"],
+  "homepage": "https://github.com/krecu/class.uuid.php",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Kretsu Evgeniy",
+      "email": "krecu.me@ya.ru"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.1"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "UUID\\": "src"
+    }
+  }
+}
