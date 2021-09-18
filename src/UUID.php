@@ -212,7 +212,7 @@ class UUID {
         $uuid['clock_seq_low'] = \mt_rand(0, 255);
         for ($i = 0; $i < 6; $i++)
             $uuid['node'][$i] = \mt_rand(0, 255);
-        return ($uuid); // @phan-suppress-current-line PhanTypeMismatchReturn
+        return ($uuid);
     }
 
     /**
@@ -388,7 +388,7 @@ class UUID {
 
         for ($i = 0; $i < 6; $i++)
             $field['node'][$i] = $uuid[10+$i];
-        return ($field); // @phan-suppress-current-line PhanTypeMismatchReturn
+        return ($field);
     }
 
     /**
@@ -428,7 +428,7 @@ class UUID {
         for ($i = 0; $i < 6; $i++)
             $field['node'][$i] = $parts[4+$i];
 
-        return ($field); // @phan-suppress-current-line PhanTypeMismatchReturn
+        return ($field);
     }
 
     /**
