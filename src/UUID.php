@@ -72,15 +72,15 @@ class UUID {
     const FMT_DEFAULT   = 16;
 
     /**
-     * @var mixed[] Field UUID representation
+     * @var array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int} UUID initialiser
      */
-    static private $m_uuid_field = array(
+    private const M_UUID_FIELD = array(
             'time_low' => 0,            /** 32-bit */
             'time_mid' => 0,            /** 16-bit */
             'time_hi'  => 0,            /** 16-bit */
             'clock_seq_hi' => 0,        /**  8-bit */
             'clock_seq_low' => 0,       /**  8-bit */
-            'node' => array()           /** 48-bit */
+            'node' => array(0,0,0,0,0,0,)           /** 48-bit */
     );
 
     /**
@@ -187,8 +187,9 @@ class UUID {
      * @return string|int[]|array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static public function convert($uuid, $from, $to) {
-        $conv = self::M_CONVERT[$from][$to];
-        if (!isset($conv)) {
+        if (isset(self::M_CONVERT[$from][$to])) {
+            $conv = self::M_CONVERT[$from][$to];
+        } else {
             return ($uuid);
         }
 
@@ -202,7 +203,7 @@ class UUID {
      * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static private function generateRandom($ns, $node) {
-        $uuid = self::$m_uuid_field;
+        $uuid = self::M_UUID_FIELD;
 
         $uuid['time_hi'] = (4 << 12) | (\mt_rand(0, 0x0fff)); // Version is 4
         $uuid['clock_seq_hi'] = (1 << 7) | \mt_rand(0, 0x3f); // High bits 0b10
@@ -288,7 +289,7 @@ class UUID {
      * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static private function generateTime($ns, $node) {
-        $uuid = self::$m_uuid_field;
+        $uuid = self::M_UUID_FIELD;
 
         /*
          * Get current time in 100 ns intervals. The magic value
@@ -377,7 +378,7 @@ class UUID {
      * @return array{time_low:int,time_mid:int,time_hi:int,clock_seq_low:int,clock_seq_hi:int,node:array{0:int,1:int,2:int,3:int,4:int,5:int}}
      */
     static private function conv_byte2field($uuid) {
-        $field = self::$m_uuid_field;
+        $field = self::M_UUID_FIELD;
         $field['time_low'] = ($uuid[0] << 24) | ($uuid[1] << 16) |
         ($uuid[2] << 8) | $uuid[3];
         $field['time_mid'] = ($uuid[4] << 8) | $uuid[5];
@@ -394,7 +395,7 @@ class UUID {
      * @param int[] $src
      * @return string
      */
-    static public function conv_byte2string($src) {
+    static private function conv_byte2string($src) {
         $field = self::conv_byte2field($src);
         return self::conv_field2string($field);
     }
@@ -418,7 +419,7 @@ class UUID {
      */
     static private function conv_string2field($src) {
         $parts = \sscanf($src, '%x-%x-%x-%x-%02x%02x%02x%02x%02x%02x');
-        $field = self::$m_uuid_field;
+        $field = self::M_UUID_FIELD;
         $field['time_low'] = ($parts[0]);
         $field['time_mid'] = ($parts[1]);
         $field['time_hi'] = ($parts[2]);
@@ -450,3 +451,4 @@ class UUID {
         return self::conv_byte2binary($byte);
     }
 }
+
